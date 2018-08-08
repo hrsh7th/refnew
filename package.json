@@ -1,6 +1,6 @@
 {
   "name": "refnew",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "proxy based state management utility.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
