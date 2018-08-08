@@ -1,0 +1,59 @@
+{
+  "name": "refnew",
+  "version": "0.0.0",
+  "description": "proxy based state management utility.",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "scripts": {
+    "build": "rimraf lib/**/*.{js,map} && tsc -p ./tsconfig.esm.json && tsc -p ./tsconfig.cjs.json",
+    "test": "jest",
+    "pretty-quick": "pretty-quick",
+    "precommit": "pretty-quick --staged",
+    "postcommit": "git reset",
+    "release": "np"
+  },
+  "author": "hrsh7th",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrsh7th/refnew.git"
+  },
+  "keywords": [
+    "mutable"
+  ],
+  "files": [
+    "lib"
+  ],
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "<rootDir>/test/**/*.test.+(ts|tsx|js)"
+    ]
+  },
+  "devDependencies": {
+    "@types/jest": "^23.3.1",
+    "@types/node": "^10.5.5",
+    "husky": "^0.14.3",
+    "jest": "^23.4.2",
+    "np": "^3.0.4",
+    "prettier": "^1.14.0",
+    "pretty-quick": "^1.6.0",
+    "reflect-metadata": "^0.1.12",
+    "rimraf": "^2.6.2",
+    "ts-jest": "^23.1.2",
+    "typescript": "^3.0.1"
+  }
+}
