@@ -4,6 +4,7 @@
   "description": "proxy based state management utility.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "scripts": {
     "build": "rimraf lib/**/*.{js,map} && tsc -p ./tsconfig.esm.json && tsc -p ./tsconfig.cjs.json",
     "test": "jest",

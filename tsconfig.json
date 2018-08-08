@@ -14,7 +14,8 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "newLine": "LF",
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": true
   },
   "include": ["src/**/*", "reflect-metadata/typings.d.ts"]
 }
