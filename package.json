@@ -11,7 +11,7 @@
     "pretty-quick": "pretty-quick",
     "precommit": "pretty-quick --staged",
     "postcommit": "git reset",
-    "release": "np"
+    "release": "npm run build && np"
   },
   "author": "hrsh7th",
   "license": "MIT",
