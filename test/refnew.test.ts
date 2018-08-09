@@ -2,6 +2,7 @@ import assert from "assert";
 import refnew from "../src/refnew";
 import * as Refnew from "../src/refnew";
 import { destructive, addDestructive } from "../src/destructives";
+import shallowEqual from "fbjs/lib/shallowEqual";
 
 [
   { suite: "default", refnew: refnew },
@@ -76,6 +77,15 @@ import { destructive, addDestructive } from "../src/destructives";
       });
     }
   );
+
+  // shallow-equals.
+  test(`${suite}: shallow-equals`, () => {
+    const state = refnew({ array: [{ name: 0 }] });
+    const array = state.array;
+    assert.equal(array, state.array);
+    array[0].name++;
+    assert.equal(shallowEqual(array, state.array), false);
+  });
 });
 
 class Custom {
