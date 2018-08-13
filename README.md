@@ -97,7 +97,6 @@ assert.notEqual(todos, state.todos);
 
 # todo
 
-- should support array of object?
 - check performance.
 - support more built-in classes.
 - support edge case and messages.

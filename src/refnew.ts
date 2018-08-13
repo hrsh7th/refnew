@@ -103,7 +103,7 @@ const createObject = <T extends any>(
     parentKey,
     instance,
     version,
-    refnew: (depth: number = 0) => {
+    refnew: () => {
       if (parent && parentKey) {
         parent[parentKey] = createObject(
           instance,
@@ -111,8 +111,8 @@ const createObject = <T extends any>(
           parentKey,
           version + 1
         );
-        if (!!parent[StateSymbol] && depth === 0) {
-          parent[StateSymbol].refnew(depth + 1);
+        if (!!parent[StateSymbol]) {
+          parent[StateSymbol].refnew();
         }
       }
     }
