@@ -8,6 +8,7 @@
   "scripts": {
     "build": "rimraf lib/**/*.{js,map} && tsc -p ./tsconfig.esm.json && tsc -p ./tsconfig.cjs.json",
     "test": "jest",
+    "perf": "ts-node --project tsconfig.json ./perf/refnew.perf.ts",
     "pretty-quick": "pretty-quick",
     "precommit": "pretty-quick --staged",
     "postcommit": "git reset",
@@ -45,17 +46,21 @@
     ]
   },
   "devDependencies": {
+    "@thi.ng/bench": "^0.1.5",
     "@types/jest": "^23.3.1",
     "@types/node": "^10.5.5",
-    "fbjs": "^0.8.17",
+    "@types/shallowequal": "^0.2.3",
     "husky": "^0.14.3",
+    "immer": "^1.5.0",
     "jest": "^23.4.2",
     "np": "^3.0.4",
     "prettier": "^1.14.0",
     "pretty-quick": "^1.6.0",
     "reflect-metadata": "^0.1.12",
     "rimraf": "^2.6.2",
+    "shallowequal": "^1.1.0",
     "ts-jest": "^23.1.2",
+    "ts-node": "^7.0.1",
     "typescript": "^3.0.1"
   }
 }

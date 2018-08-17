@@ -15,18 +15,19 @@ export const StateSymbol: unique symbol = Symbol();
  */
 export const VersionProperty: string = "$$refnew-version-property";
 
-const isObjectTarget = (object: any) =>
-  object !== null && typeof object === "object" && !(ProxySymbol in object);
-const isMethodTarget = (method: any) =>
-  typeof method === "function" && destructives.has(method);
-const isChange = (x: any, y: any) => x !== y;
+const isObject = (object: any) => {
+  return typeof object === "object" && object !== null;
+};
+const isMethod = (method: any) => {
+  return typeof method === "function" && destructives.has(method);
+};
+const isChange = (x: any, y: any) => {
+  return x !== y;
+};
 
 type RefnewObject<T> = T & {
   [StateSymbol]?: {
-    parent?: RefnewObject<any>;
-    parentKey?: PropertyKey;
     instance: T;
-    version: number;
     refnew: () => void;
   };
 };
@@ -35,60 +36,22 @@ type RefnewObject<T> = T & {
  * create refnew object.
  */
 export const refnew = <T extends any>(object: T): T => {
-  if (!isObjectTarget(object)) {
+  if (!isObject(object)) {
     throw new Error("refnew supported only object type.");
   }
-  return createObject(object);
+  return createObject(object, {}, 0);
 };
-export default refnew;
 
 /**
  * create refnew object.
  */
 const createObject = <T extends any>(
   instance: RefnewObject<T>,
+  trapped: { [K in any]: true },
+  version: number,
   parent?: RefnewObject<any>,
-  parentKey?: PropertyKey,
-  version: number = 0
+  parentKey?: any
 ): T => {
-  const { proxy } = Proxy.revocable<T & object>(instance, {
-    /**
-     * check object is proxy.
-     */
-    has(target: T, key: PropertyKey) {
-      return key === ProxySymbol || key in target;
-    },
-
-    /**
-     * trap mutation.
-     */
-    set(target: T, key: PropertyKey, value: any) {
-      if (isChange(target[key], value)) {
-        target[StateSymbol].refnew();
-      }
-      target[key] = value;
-      return true;
-    },
-
-    /**
-     * trap object & method.
-     */
-    get: (target: T, key: PropertyKey): any => {
-      if (key === VersionProperty) {
-        return version;
-      }
-
-      const value = target[key];
-      if (isObjectTarget(value)) {
-        target[key] = createObject(value, target, key);
-      }
-      if (isMethodTarget(value)) {
-        target[key] = createMethod(value, target);
-      }
-      return target[key];
-    }
-  });
-
   /**
    * Object version property.
    * @NOTE this property will trap in Proxy#get.
@@ -99,17 +62,15 @@ const createObject = <T extends any>(
    * Proxy state.
    */
   instance[StateSymbol] = {
-    parent,
-    parentKey,
     instance,
-    version,
     refnew: () => {
       if (parent && parentKey) {
         parent[parentKey] = createObject(
           instance,
+          trapped,
+          version + 1,
           parent,
-          parentKey,
-          version + 1
+          parentKey
         );
         if (!!parent[StateSymbol]) {
           parent[StateSymbol].refnew();
@@ -118,29 +79,68 @@ const createObject = <T extends any>(
     }
   };
 
-  return proxy;
+  return Proxy.revocable<T & object>(instance, {
+    /**
+     * check object is proxy.
+     */
+    has(target: T, key: any) {
+      return key === ProxySymbol || key in target;
+    },
+
+    /**
+     * trap mutation.
+     */
+    set(target: T, key: any, value: any) {
+      if (isChange(target[key], value)) {
+        target[StateSymbol].refnew();
+      }
+      target[key] = value;
+      return true;
+    },
+
+    /**
+     * trap object & method.
+     */
+    get(target: T, key: any) {
+      if (key === VersionProperty) {
+        return version;
+      }
+
+      if (trapped[key]) {
+        return target[key];
+      }
+      trapped[key] = true;
+
+      const value = target[key];
+      if (isObject(value)) {
+        return (target[key] = createObject(value, trapped, 0, target, key));
+      } else if (isMethod(value)) {
+        return (target[key] = createMethod(value, target));
+      }
+      return value;
+    }
+  }).proxy;
 };
 
 /**
  * create destructive method.
  */
-const createMethod = (fn: any, target: any): any => {
-  const { proxy } = Proxy.revocable(fn, {
+const createMethod = (method: any, target: any): any => {
+  return Proxy.revocable(method, {
     /**
      * check object is proxy.
      */
-    has(target: any, key: PropertyKey) {
+    has(target: any, key: any) {
       return key === ProxySymbol || key in target;
     },
 
     /**
      * trap destructive method.
      */
-    apply(fn: Function, _: any, args: any[]): any {
-      const returns = fn.apply(target[StateSymbol].instance, args);
+    apply(method: Function, _: any, args: any[]) {
+      const returns = method.apply(target[StateSymbol].instance, args);
       target[StateSymbol].refnew();
       return returns;
     }
-  });
-  return proxy;
+  }).proxy;
 };
