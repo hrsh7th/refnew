@@ -1,7 +1,7 @@
 import assert from "assert";
 import { refnew } from "../src/refnew";
 import { destructive, addDestructive } from "../src/destructives";
-import shallowEqual from "fbjs/lib/shallowEqual";
+import shallowequal from "shallowequal";
 
 // Object.
 test("Object", () => {
@@ -79,7 +79,7 @@ test("shallow-equals", () => {
   const array = state.array;
   assert.equal(array, state.array);
   array[0].name++;
-  assert.equal(shallowEqual(array, state.array), false);
+  assert.equal(shallowequal(array, state.array), false);
 });
 
 // update all parent.
