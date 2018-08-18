@@ -6,6 +6,55 @@ proxy based state management utility.
 
 `npm install refnew`
 
+# limitation
+
+- runtime environment required `Proxy`.
+- refnew is fast to mutate but property access is slow.
+  - it's means `refnew is maybe slow in real world apps`.
+  - if you use chrome62 or higher, refnew is meybe better performance.
+    - [see this article.](https://v8project.blogspot.com/2017/10/optimizing-proxies.html)
+
+# binding
+
+- react
+  - [refnew-react](https://github.com/hrsh7th/refnew-react)
+
+# performance
+
+`npm run perf` //=> node v8.9.3
+
+```sh
+## nested property mutate: refnew
+1342
+
+## nested property mutate: immer
+3936
+
+## nested property access: refnew
+494
+
+## nested property access: immer
+4
+```
+
+`npm run perf` //=> node v10.9.0
+
+```sh
+# 500000/kind
+
+## nested property mutate: refnew
+540
+
+## nested property mutate: immer
+2627
+
+## nested property access: refnew
+121
+
+## nested property access: immer
+5
+```
+
 # usage
 
 ### basic.
@@ -101,67 +150,7 @@ assert.notEqual(todos, state.todos);
 - support edge case and messages.
 - test on real world apps.
 
-# limitation
-
-- runtime environment required `Proxy`.
-- refnew is fast to update but property access is slow.
-  - it's means `refnew is maybe slow in real world apps`.
-  - if you use chrome62 or higher, refnew is meybe better performance.
-
-# performance
-
-`npm run perf` //=> node v8.9.3
-
-```sh
-## nested property mutate: refnew
-1342
-
-## nested property mutate: immer
-3936
-
-## nested property access: refnew
-494
-
-## nested property access: immer
-4
-
-## nested property access: native proxy
-196
-
-## nested property access: native object
-4
-```
-
-`npm run perf` //=> node v10.9.0
-
-```sh
-# 500000/kind
-
-## nested property mutate: refnew
-540
-
-## nested property mutate: immer
-2627
-
-## nested property access: refnew
-121
-
-## nested property access: immer
-5
-
-## nested property access: native proxy
-74
-
-## nested property access: native object
-4
-```
-
-# more
-
-- react binding
-  - [refnew-react](https://github.com/hrsh7th/refnew-react)
-
 # note
 
 - inspired by `mweststrate/immer`.
-- don't use this in production.
+- don't use this in production yet.
