@@ -2,58 +2,37 @@
 
 proxy based state management utility.
 
+# why?
+
+Typically React apps needs to implement `shouldComponentUpdate` for performance.
+But it tends to be ugly implementation because object references are same always.
+`redux` and `immer` are try solve this problem by immutability.
+
+I tried implementing `refnew` to solve this problem by other way.
+`refnew` provide way to manage object references.
+If you modify object's value, you can check object equality by `===`.
+
+See refnew's test.
+
 # install
 
 `npm install refnew`
 
-# limitation
+# note
 
 - runtime environment required `Proxy`.
+- refnew is hobby project now, you don't use this in production yet.
 - refnew is fast to mutate but property access is slow.
   - it's means `refnew is maybe slow in real world apps`.
   - if you use chrome62 or higher, refnew is meybe better performance.
     - [see this article.](https://v8project.blogspot.com/2017/10/optimizing-proxies.html)
+  - see `performance` section.
+- inspired by `mweststrate/immer`.
 
 # binding
 
 - react
   - [refnew-react](https://github.com/hrsh7th/refnew-react)
-
-# performance
-
-`npm run perf` //=> node v8.9.3
-
-```sh
-## nested property mutate: refnew
-1342
-
-## nested property mutate: immer
-3936
-
-## nested property access: refnew
-494
-
-## nested property access: immer
-4
-```
-
-`npm run perf` //=> node v10.9.0
-
-```sh
-# 500000/kind
-
-## nested property mutate: refnew
-540
-
-## nested property mutate: immer
-2627
-
-## nested property access: refnew
-121
-
-## nested property access: immer
-5
-```
 
 # usage
 
@@ -74,10 +53,13 @@ const state = refnew({
 // pick part of state.
 const todos = state.todos;
 
+// off course, object are equal.
+assert.equal(todos, state.todos);
+
 // modify part of state.
 todos.push({ name: "my todo3", status: "in-progress" });
 
-// check equality.
+// can check object equality by `===`.
 assert.notEqual(todos, state.todos);
 ```
 
@@ -144,13 +126,44 @@ todos.add({ name: "my todo3", status: "in-progress" });
 assert.notEqual(todos, state.todos);
 ```
 
+# performance
+
+`npm run perf` //=> node v8.9.3
+
+```sh
+## nested property mutate: refnew
+1342
+
+## nested property mutate: immer
+3936
+
+## nested property access: refnew
+494
+
+## nested property access: immer
+4
+```
+
+`npm run perf` //=> node v10.9.0
+
+```sh
+# 500000/kind
+
+## nested property mutate: refnew
+540
+
+## nested property mutate: immer
+2627
+
+## nested property access: refnew
+121
+
+## nested property access: immer
+5
+```
+
 # todo
 
 - support more built-in classes.
 - support edge case and messages.
 - test on real world apps.
-
-# note
-
-- inspired by `mweststrate/immer`.
-- don't use this in production yet.
