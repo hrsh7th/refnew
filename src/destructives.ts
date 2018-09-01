@@ -1,14 +1,14 @@
 /**
  * destructive method definitions.
  */
-export const destructives = new Set();
+export const destructives = new Map<Function, true>();
 
 /**
  * annotate destructive methods.
  */
 export const destructive = (_?: () => boolean) => {
   return function(_: any, __: PropertyKey, descriptor: PropertyDescriptor) {
-    destructives.add(descriptor.value);
+    destructives.set(descriptor.value, true);
   };
 };
 
@@ -16,7 +16,7 @@ export const destructive = (_?: () => boolean) => {
  * add destructive function.
  */
 export const addDestructive = (fn: Function) => {
-  destructives.add(fn);
+  destructives.set(fn, true);
 };
 
 // Array.
@@ -30,7 +30,7 @@ export const addDestructive = (fn: Function) => {
   "fill",
   "reverse",
   "sort"
-].forEach(name => destructives.add((Array.prototype as any)[name]));
+].forEach(name => destructives.set((Array.prototype as any)[name], true));
 
 // Date.
 [
@@ -49,4 +49,4 @@ export const addDestructive = (fn: Function) => {
   "setUTCMinutes",
   "setUTCSeconds",
   "setYear"
-].forEach(name => destructives.add((Date.prototype as any)[name]));
+].forEach(name => destructives.set((Date.prototype as any)[name], true));

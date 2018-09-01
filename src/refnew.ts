@@ -10,11 +10,9 @@ export const ProxySymbol: unique symbol = Symbol();
  */
 export const StateSymbol: unique symbol = Symbol();
 
-/**
- * Symbol for shallow equals.
- */
-export const VersionProperty: string = "$$refnew-version-property";
-
+const isRefnew = (object: any) => {
+  return isObject(object) && ProxySymbol in object;
+};
 const isObject = (object: any) => {
   return typeof object === "object" && object !== null;
 };
@@ -26,20 +24,23 @@ const isChange = (x: any, y: any) => {
 };
 
 type RefnewObject<T> = T & {
-  [StateSymbol]?: {
-    instance: T;
-    refnew: () => void;
-  };
+  [StateSymbol]?: ProxyState<T>;
+};
+
+type ProxyState<T> = {
+  instance: T;
+  trapped: { [K in any]: RefnewObject<any> };
+  refnew: () => RefnewObject<any>;
 };
 
 /**
  * create refnew object.
  */
-export const refnew = <T extends any>(object: T): T => {
+export const refnew = <T extends any>(object: T): RefnewObject<T> => {
   if (!isObject(object)) {
     throw new Error("refnew supported only object type.");
   }
-  return createObject(object, {}, 0);
+  return createObject(object, undefined, undefined);
 };
 
 /**
@@ -47,39 +48,30 @@ export const refnew = <T extends any>(object: T): T => {
  */
 const createObject = <T extends any>(
   instance: RefnewObject<T>,
-  trapped: { [K in any]: true },
-  version: number,
   parent?: RefnewObject<any>,
   parentKey?: any
-): T => {
-  /**
-   * Object version property.
-   * @NOTE this property will trap in Proxy#get.
-   */
-  instance[VersionProperty] = true;
-
+): RefnewObject<T> => {
   /**
    * Proxy state.
    */
-  instance[StateSymbol] = {
+  const state: ProxyState<T> = {
     instance,
+    trapped: {},
     refnew: () => {
-      if (parent && parentKey) {
-        parent[parentKey] = createObject(
-          instance,
-          trapped,
-          version + 1,
-          parent,
-          parentKey
-        );
-        if (!!parent[StateSymbol]) {
-          parent[StateSymbol].refnew();
-        }
+      if (!parent && !parentKey) {
+        return refnew; // the root state.
       }
+
+      const newParent = parent[StateSymbol].refnew();
+      return (newParent[parentKey] = createObject(
+        instance,
+        newParent,
+        parentKey
+      ));
     }
   };
 
-  return Proxy.revocable<T & object>(instance, {
+  const refnew: RefnewObject<T> = Proxy.revocable<T & object>(instance, {
     /**
      * check object is proxy.
      */
@@ -91,8 +83,13 @@ const createObject = <T extends any>(
      * trap mutation.
      */
     set(target: T, key: any, value: any) {
+      if (isRefnew(value)) {
+        state.trapped[key] = value;
+        return true;
+      }
+
       if (isChange(target[key], value)) {
-        target[StateSymbol].refnew();
+        refnew[StateSymbol].refnew();
       }
       target[key] = value;
       return true;
@@ -102,24 +99,25 @@ const createObject = <T extends any>(
      * trap object & method.
      */
     get(target: T, key: any) {
-      if (key === VersionProperty) {
-        return version;
+      if (key === StateSymbol) {
+        return state;
       }
 
-      if (trapped[key]) {
-        return target[key];
+      if (state.trapped[key]) {
+        return state.trapped[key];
       }
-      trapped[key] = true;
 
       const value = target[key];
       if (isObject(value)) {
-        return (target[key] = createObject(value, trapped, 0, target, key));
+        return (state.trapped[key] = createObject(value, refnew, key));
       } else if (isMethod(value)) {
-        return (target[key] = createMethod(value, target));
+        return (state.trapped[key] = createMethod(value, refnew));
       }
       return value;
     }
-  }).proxy;
+  }).proxy as RefnewObject<T>;
+
+  return refnew;
 };
 
 /**

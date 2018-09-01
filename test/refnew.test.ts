@@ -75,10 +75,10 @@ test("Object", () => {
 
 // shallow-equals.
 test("shallow-equals", () => {
-  const state = refnew({ array: [{ name: 0 }] });
+  const state = refnew({ array: [{ value: 0 }] });
   const array = state.array;
   assert.equal(array, state.array);
-  array[0].name++;
+  array[0].value++;
   assert.equal(shallowequal(array, state.array), false);
 });
 
