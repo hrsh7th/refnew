@@ -73,8 +73,8 @@ test("Object", () => {
   }
 );
 
-// shallow-equals.
-test("shallow-equals", () => {
+// shallow-equal.
+test("shallow-equal", () => {
   const state = refnew({ array: [{ value: 0 }] });
   const array = state.array;
   assert.equal(array, state.array);
@@ -103,6 +103,15 @@ test("update all parent", () => {
   assert.notEqual(state.object1, object1);
   assert.notEqual(state.object1.object2, object2);
   assert.notEqual(state.object1.object2.object3, object3);
+});
+
+// remove property.
+test("remove property", () => {
+  const state = refnew({ object: { value: 0 } });
+  const object = state.object;
+  assert.equal(object, state.object);
+  delete state.object;
+  assert.equal(undefined, state.object);
 });
 
 class Custom {

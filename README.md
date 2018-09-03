@@ -63,86 +63,7 @@ todos.push({ name: "my todo3", status: "in-progress" });
 assert.notEqual(todos, state.todos);
 ```
 
-### custom class with annotation.
-
-```js
-import assert from "assert";
-import { refnew, destructive } from "refnew";
-
-// define your custom class.
-class TodoList {
-  _todos = [];
-
-  @destructive()
-  add(todo) {
-    this._todos.push(todo);
-  }
-}
-
-// create your state.
-const state = refnew({
-  todos: new TodoList()
-});
-
-// pick part of state.
-const todos = state.todos;
-
-// modify part of state.
-todos.add({ name: "my todo3", status: "in-progress" });
-
-// check equality.
-assert.notEqual(todos, state.todos);
-```
-
-### custom class without annotation.
-
-```js
-import assert from "assert";
-import { refnew, addDestructive } from "refnew";
-
-// define your custom class.
-class TodoList {
-  _todos = [];
-
-  add(todo) {
-    this._todos.push(todo);
-  }
-}
-
-addDestructive(TodoList.prototype.add);
-
-// create your state.
-const state = refnew({
-  todos: new TodoList()
-});
-
-// pick part of state.
-const todos = state.todos;
-
-// modify part of state.
-todos.add({ name: "my todo3", status: "in-progress" });
-
-// check equality.
-assert.notEqual(todos, state.todos);
-```
-
 # performance
-
-`npm run perf` //=> node v8.9.3
-
-```sh
-## nested property mutate: refnew
-1342
-
-## nested property mutate: immer
-3936
-
-## nested property access: refnew
-494
-
-## nested property access: immer
-4
-```
 
 `npm run perf` //=> node v10.9.0
 
@@ -150,16 +71,16 @@ assert.notEqual(todos, state.todos);
 # 500000/kind
 
 ## nested property mutate: refnew
-540
-
-## nested property mutate: immer
-2627
+1059
 
 ## nested property access: refnew
-121
+128
+
+## nested property mutate: immer
+2490
 
 ## nested property access: immer
-5
+4
 ```
 
 # todo

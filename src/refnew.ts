@@ -89,7 +89,7 @@ const createObject = <T extends any>(
       }
 
       if (isChange(target[key], value)) {
-        refnew[StateSymbol].refnew();
+        state.refnew();
       }
       target[key] = value;
       return true;
@@ -114,6 +114,17 @@ const createObject = <T extends any>(
         return (state.trapped[key] = createMethod(value, refnew));
       }
       return value;
+    },
+
+    /**
+     * remove property.
+     */
+    deleteProperty(target: T, key: any) {
+      if (state.trapped[key]) {
+        delete state.trapped[key];
+      }
+      delete target[key];
+      return true;
     }
   }).proxy as RefnewObject<T>;
 
@@ -123,7 +134,7 @@ const createObject = <T extends any>(
 /**
  * create destructive method.
  */
-const createMethod = (method: any, target: any): any => {
+const createMethod = (method: any, refnew: any): any => {
   return Proxy.revocable(method, {
     /**
      * check object is proxy.
@@ -136,8 +147,8 @@ const createMethod = (method: any, target: any): any => {
      * trap destructive method.
      */
     apply(method: Function, _: any, args: any[]) {
-      const returns = method.apply(target[StateSymbol].instance, args);
-      target[StateSymbol].refnew();
+      const returns = method.apply(refnew[StateSymbol].instance, args);
+      refnew[StateSymbol].refnew();
       return returns;
     }
   }).proxy;
