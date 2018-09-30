@@ -10,9 +10,13 @@ export const ProxySymbol: unique symbol = Symbol();
  */
 export const StateSymbol: unique symbol = Symbol();
 
-const isRefnew = (object: any) => {
+/**
+ * check Refnew object.
+ */
+export const isRefnew = (object: any) => {
   return isObject(object) && ProxySymbol in object;
 };
+
 const isObject = (object: any) => {
   return typeof object === "object" && object !== null;
 };

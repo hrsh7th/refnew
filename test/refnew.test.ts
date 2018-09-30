@@ -105,6 +105,27 @@ test("update all parent", () => {
   assert.notEqual(state.object1.object2.object3, object3);
 });
 
+// same layer property.
+test("same layer property.", () => {
+  const state = refnew({
+    object1: {
+      value: 0
+    },
+    object2: {
+      value: 0
+    }
+  });
+  const object1 = state.object1;
+  assert.equal(state.object1, object1);
+  const object2 = state.object2;
+  assert.equal(state.object2, object2);
+
+  state.object1.value++;
+
+  assert.notEqual(state.object1, object1);
+  assert.equal(state.object2, object2);
+});
+
 // remove property.
 test("remove property", () => {
   const state = refnew({ object: { value: 0 } });

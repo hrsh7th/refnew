@@ -1,2 +1,2 @@
-export { refnew } from "./refnew";
+export { refnew, isRefnew } from "./refnew";
 export { destructive, addDestructive } from "./destructives";
